@@ -1,0 +1,21 @@
+name: OpenHomes
+main: com.jadenPete.OpenHomes.Main
+version: 1.0
+commands:
+  home:
+    description: Teleport player to a home.
+    usage: "§cUsage: /home [home]"
+    permission: openhomes.home
+    permission-message: You don't have permission.
+
+  sethome:
+    description: Sets a player's home.
+    usage: "§cUsage: /sethome <home>"
+    permission: openhomes.sethome
+    permission-message: You don't have permission.
+
+  delhome:
+    description: Deletes a player's home.
+    usage: "§cUsage: /delhome <home>"
+    permission: openhomes.delhome
+    permission-message: You don't have permission.
