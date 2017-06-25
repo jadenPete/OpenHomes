@@ -1,12 +1,17 @@
 messages:
+  home: "§cTeleporting to §6home§c home."
   no-homes: "§cYou have not set any homes."
   list-homes: "§cYou have the following homes: §6%h"
-
   set-home: "§cYou have set your §6%h§c home."
   del-home: "§cYou have deleted your §6%h§c home."
 
+  connect-error: "§cError connecting to the OpenHomes database."
+  disconnect-error: "§cError disconnecting from the OpenHomes database."
+
+  home-error: "§cError while teleporting to that home."
+  list-homes-error: "§cError while listing homes."
+  sethome-error: "§cError while setting that home."
+  delhome-error: "§cError while deleting that home."
+
   invalid-home: "§cThat home §6%h§c does not exist."
   invalid-name: "§cThat is not a valid home name!"
-  non-player: "Error: This command can only be run by a player."
-
-players:

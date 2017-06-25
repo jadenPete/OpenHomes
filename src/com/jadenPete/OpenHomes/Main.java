@@ -1,6 +1,9 @@
 package com.jadenPete.OpenHomes;
 
-import java.util.List;
+import java.util.regex.Pattern;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,62 +12,70 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import org.bukkit.entity.Player;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Location;
-import org.bukkit.World;
 
 public class Main extends JavaPlugin {
-	FileConfiguration config = getConfig();
+	private FileConfiguration config = getConfig();
+	public static Connection connection;
 	
-	// Fired when plugin is first enabled
+	// Fired when plugin is first enabled.
 	@Override
-	public void onEnable() {
-		this.getConfig().options().copyDefaults(true);
-		this.saveDefaultConfig();
+	public void onEnable(){
+		// If the configuration file doesn't exist, copy the default one.
+		saveDefaultConfig();
+		
+		// Run the Commands class constructor, which uses an
+		// instance of the main class to access non-static methods.
+		new Commands(this);
+		
+		getConnection();
 	}
 	
-	// Fired when plugin is disabled
+	// Fired when plugin is disabled.
 	@Override
-	public void onDisable() {
-	
+	public void onDisable(){
+		closeConnection();
 	}
 	
-	// Sends a message to command executor
+	// Connect to the MySQL Database.
+	public void getConnection(){
+		String username = "jadenpete";
+		String password = "password";
+		
+		String url = "jdbc:mysql://localhost/openhomes";
+		
+		try {
+			Commands.connection = DriverManager.getConnection(url, username, password);
+		} catch(Exception e){
+			System.out.println("Error connecting to the OpenHomes database.");
+		}
+	}
+	
+	// Disconnect from the MySQL Database.
+	public void closeConnection(){
+		try {
+			connection.close();
+		} catch(Exception e){
+			System.out.println("Error disconnecting from the OpenHomes database.");
+		}
+	}
+	
+	// Parses the various plugin commands
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+		// Check that the command is being executed by a player,
+		// and not the console, another plugin, or a command block.
 		if(sender instanceof Player){
+			// Variable for the player who executed the command,
 			Player player = getServer().getPlayer(sender.getName());
-			String playerUUID = "players." + player.getUniqueId().toString();
-			String playerHomelist = playerUUID + ".homelist";
-			String currentHome = null;
 			
-			if(args.length == 1){
-				currentHome = playerUUID + ".homes." + args[0];
-			}
-			
+			// Parse the command on a case-insensitive level.
 			switch(cmd.getName().toLowerCase()){
 				case "home":{
-					if(args.length == 0){						
-						if(!config.contains(playerHomelist) ||
-							config.getStringList(playerHomelist).size() == 0){
-							sender.sendMessage(config.getString("messages.no-homes"));
-						} else {
-							sender.sendMessage(config.getString("messages.list-homes").replaceAll("%h", 
-											   String.join(" ", config.getStringList(playerHomelist))));
-						}
-					} else if(args.length == 1){						
-						if(config.contains(currentHome)){
-							World homeWorld = getServer().getWorld(config.getString(currentHome + ".world"));
-							Location homeLocation = new Location(homeWorld, config.getDouble(currentHome + ".x"),
-																			config.getDouble(currentHome + ".y"),
-																			config.getDouble(currentHome + ".z"));
-							
-							homeLocation.setYaw((float) config.getDouble(currentHome + ".yaw"));
-							homeLocation.setPitch((float) config.getDouble(currentHome + ".pitch"));
-							
-							((Player) sender).getPlayer().teleport(homeLocation);
-						} else {
-							sender.sendMessage(config.getString("messages.invalid-home").replaceAll("%h", args[0]));
-						}
+					// If no home is specified, list the player's homes.
+					// Otherwise teleport the player to the specified home.
+					if(args.length == 1){	
+						Commands.home(player, args);
+					} else if(args.length == 0){
+						Commands.list_homes(player, args);
 					} else {
 						return false;
 					}
@@ -73,30 +84,11 @@ public class Main extends JavaPlugin {
 				}
 				
 				case "sethome":{
+					// If a home is specified, carry on with the command.
 					if(args.length == 1){
-						if(StringUtils.isAlphanumeric(args[0])){
-							List<String> currentHomelist = config.getStringList(playerHomelist);
-							
-							if(config.contains(playerHomelist)){							
-								if(!currentHomelist.contains(args[0])){
-									currentHomelist.add(args[0]);
-									
-									java.util.Collections.sort(currentHomelist);
-								}
-							} else {
-								currentHomelist.add(args[0]);
-							}
-							
-							config.set(playerHomelist, currentHomelist);
-
-							config.set(currentHome + ".world", player.getWorld().getName());
-							config.set(currentHome + ".x", player.getLocation().getX());
-							config.set(currentHome + ".y", player.getLocation().getY());
-							config.set(currentHome + ".z", player.getLocation().getZ());
-							config.set(currentHome + ".yaw", player.getEyeLocation().getYaw());
-							config.set(currentHome + ".pitch", player.getEyeLocation().getPitch());
-							
-							sender.sendMessage(config.getString("messages.set-home").replaceAll("%h", args[0]));
+						// Make sure that the home only contains letters, numbers, or underscores.						
+						if(Pattern.compile("^[a-zA-Z0-9_]*$").matcher(args[0]).matches()){
+							Commands.set_home(player, args);
 						} else {
 							sender.sendMessage(config.getString("messages.invalid-name"));
 						}
@@ -108,27 +100,13 @@ public class Main extends JavaPlugin {
 				}
 				
 				case "delhome":{
+					// If a home is specified, carry on with the command.
 					if(args.length == 1){
-						if(config.contains(currentHome)){
-							List<String> currentHomelist = config.getStringList(playerHomelist);
-							int currentHomeLocation = -1;
-							
-							for(String homeName : currentHomelist){
-								currentHomeLocation++;
-								
-								if(homeName == args[0]){
-									break;
-								}
-							}
-							
-							currentHomelist.remove(currentHomeLocation);
-							
-							config.set(playerHomelist, currentHomelist);
-							config.set(currentHome, null);
-							
-							sender.sendMessage(config.getString("messages.del-home").replaceAll("%h", args[0]));
+						// Make sure that the home only contains letters, numbers, or underscores.						
+						if(Pattern.compile("^[a-zA-Z0-9_]*$").matcher(args[0]).matches()){
+							Commands.del_home(player, args);
 						} else {
-							sender.sendMessage(config.getString("messages.invalid-home").replaceAll("%h", args[0]));
+							sender.sendMessage(config.getString("messages.invalid-name"));
 						}
 					} else {
 						return false;
@@ -140,8 +118,6 @@ public class Main extends JavaPlugin {
 		} else {
 			sender.sendMessage(config.getString("messages.non-player"));
 		}
-		
-		this.saveConfig();
 			
 		return true;
 	}
