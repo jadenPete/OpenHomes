@@ -15,3 +15,4 @@ messages:
 
   invalid-home: "§cThat home §6%h§c does not exist."
   invalid-name: "§cThat is not a valid home name!"
+  non-player: "Error: This command can only be run by a player."

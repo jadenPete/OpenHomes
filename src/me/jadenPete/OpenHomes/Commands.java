@@ -1,4 +1,4 @@
-package com.jadenPete.OpenHomes;
+package me.jadenPete.OpenHomes;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,9 +48,9 @@ public class Commands {
 				((Player) player).getPlayer().teleport(homeLocation);
 				
 				// Send the player a message telling them that the command completed successfully.
-				player.sendMessage(config.getString("messages.set-home").replaceAll("%h", args[0]));
+				player.sendMessage(config.getString("messages.set-home").replace("%h", args[0]));
 			} else {
-				player.sendMessage(config.getString("messages.invalid-home").replaceAll("%h", args[0]));
+				player.sendMessage(config.getString("messages.invalid-home").replace("%h", args[0]));
 			}
 		} catch(Exception e){
 			// If it doesn't work, send the player an error message.
@@ -81,7 +81,7 @@ public class Commands {
 				}
 				
 				// Send the player a message telling them that the command completed successfully.
-				player.sendMessage(config.getString("messages.list-homes").replaceAll("%h", playerHomes));
+				player.sendMessage(config.getString("messages.list-homes").replace("%h", playerHomes));
 			} else {
 				player.sendMessage(config.getString("messages.no-homes"));
 			}
@@ -108,7 +108,7 @@ public class Commands {
 				ps.setDouble(5, player.getEyeLocation().getYaw());
 				ps.setDouble(6, player.getEyeLocation().getPitch());
 				
-				// Save the player's uuid and home name.
+				// Specify the player's uuid and home name.
 				ps.setString(7, player.getUniqueId().toString());
 				ps.setString(8, args[0]);
 				
@@ -135,7 +135,7 @@ public class Commands {
 				ps.executeUpdate();
 				
 				// Send the player a message telling them that the command completed successfully.
-				player.sendMessage(config.getString("messages.set-home").replaceAll("%h", args[0]));
+				player.sendMessage(config.getString("messages.set-home").replace("%h", args[0]));
 			}
 		} catch(Exception e){
 			// If it doesn't work, send the player an error message.
@@ -157,9 +157,9 @@ public class Commands {
 				ps.executeUpdate();
 				
 				// Send the player a message telling them that the command completed successfully.
-				player.sendMessage(config.getString("messages.del-home").replaceAll("%h", args[0]));
+				player.sendMessage(config.getString("messages.del-home").replace("%h", args[0]));
 			} else {
-				player.sendMessage(config.getString("messages.invalid-home").replaceAll("%h", args[0]));
+				player.sendMessage(config.getString("messages.invalid-home").replace("%h", args[0]));
 			}
 		} catch(Exception e){
 			// If it doesn't work, send the player an error message.

@@ -1,8 +1,6 @@
-package com.jadenPete.OpenHomes;
+package me.jadenPete.OpenHomes;
 
 import java.util.regex.Pattern;
-
-import java.sql.Connection;
 import java.sql.DriverManager;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,7 +13,6 @@ import org.bukkit.entity.Player;
 
 public class Main extends JavaPlugin {
 	private FileConfiguration config = getConfig();
-	public static Connection connection;
 	
 	// Fired when plugin is first enabled.
 	@Override
@@ -53,13 +50,14 @@ public class Main extends JavaPlugin {
 	// Disconnect from the MySQL Database.
 	public void closeConnection(){
 		try {
-			connection.close();
+			Commands.connection.close();
 		} catch(Exception e){
 			System.out.println("Error disconnecting from the OpenHomes database.");
 		}
 	}
 	
-	// Parses the various plugin commands
+	// Parses the various plugin commands.
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		// Check that the command is being executed by a player,
 		// and not the console, another plugin, or a command block.

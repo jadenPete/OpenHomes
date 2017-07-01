@@ -1,6 +1,6 @@
 name: OpenHomes
-main: com.jadenPete.OpenHomes.Main
-version: 1.1
+main: me.jadenPete.OpenHomes.Main
+version: 1.1.2
 commands:
   home:
     description: Teleport player to a home.
